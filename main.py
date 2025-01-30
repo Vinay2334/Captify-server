@@ -46,40 +46,38 @@ def transcribe_audio():
     while True:
         if not audio_queue.empty():
             audio_data = audio_queue.get()
-            accumulated_audio.append(audio_data)
+            # accumulated_audio.append(audio_data)
 
             # sd.play(audio_data, samplerate=44100)
             # sd.wait()  # Wait until audio finishes playing
-            if len(accumulated_audio) > 40:
-                combined_audio = np.concatenate(accumulated_audio)
-                wav_buffer = io.BytesIO()
-                sf.write(wav_buffer, combined_audio, 44100, format="WAV", subtype="FLOAT")
-                wav_buffer.seek(0)
-                # with wave.open("combined_audio.wav", "wb") as wf:
-                #     wf.setnchannels(1)
-                #     wf.setsampwidth(2)
-                #     wf.setframerate(44100)
-                #     wf.writeframes((combined_audio * 32767).astype(np.int16).tobytes())
-                accumulated_audio = []
-                # sf.write("combined.wav", combined_audio, 44100, subtype="FLOAT")
-                # sd.play(combined_audio, samplerate=44100)
-                segments, info = model.transcribe(
-                    wav_buffer,
-                    language="en",
-                    # Source language (if known, or auto-detect)
-                    beam_size=5,               # Larger beam size for better accuracy
-                    temperature=0.0,           # Reduces randomness in output
-                    compression_ratio_threshold=2.4,
-                    no_speech_threshold=0.6,
-                    condition_on_previous_text=True,
-                    )
-
-                print("Detected language '%s' with probability %f" %
-                      (info.language, info.language_probability))
-
-                for idx, segment in enumerate(segments):
-                    print("[%.2fs -> %.2fs] %s" %
-                          (segment.start, segment.end, segment.text))
+           
+            # combined_audio = np.concatenate(accumulated_audio)
+            wav_buffer = io.BytesIO()
+            sf.write(wav_buffer, audio_data, 44100, format="WAV", subtype="FLOAT")
+            wav_buffer.seek(0)
+            # with wave.open("combined_audio.wav", "wb") as wf:
+            #     wf.setnchannels(1)
+            #     wf.setsampwidth(2)
+            #     wf.setframerate(44100)
+            #     wf.writeframes((combined_audio * 32767).astype(np.int16).tobytes())
+            # accumulated_audio = []
+            # sf.write("combined.wav", combined_audio, 44100, subtype="FLOAT")
+            # sd.play(combined_audio, samplerate=44100)
+            segments, info = model.transcribe(
+                wav_buffer,
+                language="en",
+                # Source language (if known, or auto-detect)
+                beam_size=7,               # Larger beam size for better accuracy
+                # temperature=0.0,           # Reduces randomness in output
+                # compression_ratio_threshold=2.4,
+                # no_speech_threshold=0.6,
+                # condition_on_previous_text=True,
+                )
+            print("Detected language '%s' with probability %f" %
+                  (info.language, info.language_probability))
+            for idx, segment in enumerate(segments):
+                print("[%.2fs -> %.2fs] %s" %
+                      (segment.start, segment.end, segment.text))
 
 
 transcription_thread = threading.Thread(target=transcribe_audio, daemon=True)
