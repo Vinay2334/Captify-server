@@ -55,6 +55,7 @@ def transcribe_audio():
             wav_buffer = io.BytesIO()
             sf.write(wav_buffer, audio_data, 44100, format="WAV", subtype="FLOAT")
             wav_buffer.seek(0)
+            print("waveBuff", wav_buffer)
             # with wave.open("combined_audio.wav", "wb") as wf:
             #     wf.setnchannels(1)
             #     wf.setsampwidth(2)
